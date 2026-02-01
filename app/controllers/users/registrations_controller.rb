@@ -1,6 +1,29 @@
 # frozen_string_literal: true
 
 class Users::RegistrationsController < Devise::RegistrationsController
+  include RackSessionFix
+  respond_to :json
+
+  private
+
+  def respond_with(resource, _opts = {})
+    if request.method == "POST" && resource.persisted?
+      render json: {
+         message: "Signed up sucessfully.",
+        data: resource
+    }, status: :ok
+    elsif request.method == "DELETE"
+      render json: {
+         message: "Account deleted sucessfully."
+      }, status: :ok
+    else
+      render json: {
+        message: "User couldn't be created sucessfully.",
+        errors: resource.errors.full_messages.to_sentence
+      }, status: :unprocessable_entity
+
+    end
+  end
   # before_action :configure_sign_up_params, only: [:create]
   # before_action :configure_account_update_params, only: [:update]
 
